@@ -1,11 +1,12 @@
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import javax.swing.plaf.IconUIResource;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Multi_Level_Equity {
-    public static void multi_Level_Equity(String company1, int level) throws IOException, InterruptedException {
+    public static List<String> multi_Level_Equity(String company1, int level) throws IOException, InterruptedException {
         StringBuilder SQARQL = new StringBuilder("select *\n" +
                 "where {\n" +
                 "<file:///F:/d2r-server-0.7/holder8.nt#holder_copy/" +
@@ -17,19 +18,23 @@ public class Multi_Level_Equity {
         }
         SQARQL.append("}");
         JSONArray jsonList = util.gstoreUtil.query(SQARQL.toString());
-        System.out.println(jsonList);
+//        System.out.println(jsonList);
         StringBuilder result;
+        List<String> neighbors = new ArrayList<>();
         for (int i = 0; i<jsonList.size();i++){
             result = new StringBuilder("");
             result.append("[path").append(i).append("]: ").append(company1);
-            JSONObject path = jsonList.getJSONObject(i);
             for(int j = 0; j < level; j++){
                 String uri = JSONObject.parseObject(jsonList.getJSONObject(i).getString("n" + j)).getString("value");
+//                只要一跳邻居
+                if(j == 0){
+                    neighbors.add(uri.substring(uri.lastIndexOf("/") + 1));
+                }
                 result.append(" -> ").append(uri.substring(uri.lastIndexOf("/") + 1));
             }
-            System.out.println(result);
+//            System.out.println(result);
         }
-
+        return neighbors;
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
